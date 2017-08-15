@@ -10,6 +10,22 @@ import time
 import loompy
 
 
+class MemoryLoomLayer():
+	def __init__(self, name: str, matrix: np.ndarray) -> None:
+		self.name = name
+		self.shape = matrix.shape
+		self.values = matrix
+
+	def __getitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]]) -> np.ndarray:
+		return self.values[slice]
+
+	def __setitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]], data: np.ndarray) -> None:
+		self.values[slice] = data
+
+	def sparse(self, genes: np.ndarray, cells: np.ndarray) -> scipy.sparse.coo_matrix:
+		return scipy.sparse.coo_matrix(self.values[genes, :][:, cells])
+
+
 class LoomLayer():
 	def __init__(self, ds: loompy.LoomConnection, name: str, dtype: str) -> None:
 		self.ds = ds
@@ -60,18 +76,3 @@ class LoomLayer():
 		else:
 			self.ds._file['/layers/' + self.name].resize(size, axis)
 
-
-class MemoryLoomLayer():
-	def __init__(self, name: str, matrix: np.ndarray) -> None:
-		self.name = name
-		self.shape = matrix.shape
-		self.values = matrix
-
-	def __getitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]]) -> np.ndarray:
-		return self.values[slice]
-
-	def __setitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]], data: np.ndarray) -> None:
-		self.values[slice] = data
-
-	def sparse(self, genes: np.ndarray, cells: np.ndarray) -> scipy.sparse.coo_matrix:
-		return scipy.sparse.coo_matrix(self.values[genes, :][:, cells])
