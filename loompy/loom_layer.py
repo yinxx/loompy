@@ -18,12 +18,12 @@ class LoomLayer():
 		self.shape = ds.shape
 
 	def __getitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]]) -> np.ndarray:
-		if self.name == "@DEFAULT" or self.name == "":
+		if self.name == "":
 			return self.ds._file['/matrix'].__getitem__(slice)
 		return self.ds._file['/layers/' + self.name].__getitem__(slice)
 
 	def __setitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]], data: np.ndarray) -> None:
-		if self.name == "@DEFAULT" or self.name == "":
+		if self.name == "":
 			self.ds._file['/matrix'].__setitem__(slice, data.astype(self.dtype))
 		else:
 			self.ds._file['/layers/' + self.name].__setitem__(slice, data.astype(self.dtype))
@@ -55,7 +55,7 @@ class LoomLayer():
 		The data is not "reshuffled" to fit in the new shape; each axis is grown or shrunk independently.
 		The coordinates of existing data are fixed.
 		"""
-		if self.name == "@DEFAULT":
+		if self.name == "":
 			self.ds._file['/matrix'].resize(size, axis)
 		else:
 			self.ds._file['/layers/' + self.name].resize(size, axis)

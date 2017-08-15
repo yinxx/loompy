@@ -768,6 +768,110 @@ class LoomConnection:
 				yield (ix, ix + selection, vals)
 				ix += rows_per_chunk
 
+	def scan(self, cells: np.ndarray = None, genes: np.ndarray = None, axis: int = 0, batch_size: int = 1000, layers: Iterable = None, key: Dict[str, List[Any]] = None) -> Iterable[Tuple[int, np.ndarray, Dict]]:
+		"""Performs a batch scan of the loom file dealing with multiple layer files
+
+		Args
+		----
+		cells: np.ndarray
+			the indexes [1,2,3,..,1000] of the cells to select
+		genes: np.ndarray
+			the indexes [1,2,3,..,1000] of the genes to select
+		axis: int
+			0:rows or 1:cols
+		batch_size: int
+			the chuncks returned at every element of the iterator
+		layers: iterable
+			if specified it will batch scan only across some of the layers of the loom file
+			if layers == None, all layers will be scanned
+			if layers == [""] or "", only the default layer will be scanned
+		key:
+			Dict with a single key
+			if specified, return the other axis reordered to match the values given for the key
+		Returns
+		------
+		Iterable that yields triplets
+		(ix, indexes, view)
+
+		ix: int
+			first position / how many rows/cols have been yielded alredy
+		indexes: np.ndarray[int]
+			the indexes with the same numbering of the input args cells / genes (i.e. np.arange(len(ds.shape[axis])))
+			this is ix + selection
+		view: LoomView
+			a view corresponding to the current chunk
+			view.values is the underlying numpy.ndarray
+		"""
+		if (axis == 0) and (key is not None) and (cells is not None):
+			raise NotImplementedError("Cannot use key and cells at the same time")
+		if (axis == 1) and (key is not None) and (genes is not None):
+			raise NotImplementedError("Cannot use key and genes at the same time")
+		if cells is None:
+			cells = np.fromiter(range(self.shape[1]), dtype='int')
+		if genes is None:
+			genes = np.fromiter(range(self.shape[0]), dtype='int')
+		if layers is None:
+			layers = self.layer.keys()
+		if layers == "":
+			layers = [""]
+
+		if axis == 1:
+			# This is magic sauce for making the order of one list be like another
+			ordering = np.arange(self.shape[0])
+			for k, v in key.items():
+				ordering = np.where(self.row_attrs[k][None, :] == v[:, None])[1]
+			cols_per_chunk = batch_size
+			ix = 0
+			while ix < self.shape[1]:
+				cols_per_chunk = min(self.shape[1] - ix, cols_per_chunk)
+
+				selection = cells - ix
+				# Pick out the cells that are in this batch
+				selection = selection[np.where(np.logical_and(selection >= 0, selection < cols_per_chunk))[0]]
+				if selection.shape[0] == 0:
+					ix += cols_per_chunk
+					continue
+
+				# Load the whole chunk from the file, then extract genes and cells using fancy indexing
+				vals: Dict[str, loompy.MemoryLoomLayer] = {}
+				for layer in layers:
+					temp = self.layer[layer][:, ix:ix + cols_per_chunk]
+					temp = temp[layer][ordering, :]
+					temp = temp[layer][genes, :]
+					temp = temp[layer][:, selection]
+					vals[layer] = loompy.MemoryLoomLayer(layer, temp)
+
+				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[ordering][genes] for key, val in self.row_attrs}, {key: val[selection] for key, val in self.col_attrs}))
+				ix += cols_per_chunk
+		elif axis == 0:
+			# This is magic sauce for making the order of one list be like another
+			ordering = np.arange(self.shape[1])
+			for k, v in key.items():
+				ordering = np.where(self.col_attrs[k][None, :] == v[:, None])[1]
+			rows_per_chunk = batch_size
+			ix = 0
+			while ix < self.shape[0]:
+				rows_per_chunk = min(self.shape[0] - ix, rows_per_chunk)
+
+				selection = genes - ix
+				# Pick out the genes that are in this batch
+				selection = selection[np.where(np.logical_and(selection >= 0, selection < rows_per_chunk))[0]]
+				if selection.shape[0] == 0:
+					ix += rows_per_chunk
+					continue
+
+				# Load the whole chunk from the file, then extract genes and cells using fancy indexing
+				vals = {}
+				for layer in layers:
+					temp = self.layer[layer][ix:ix + rows_per_chunk, :]
+					temp = temp[layer][selection, :]
+					temp = temp[layer][:, ordering]
+					temp = temp[layer][:, cells]
+					vals[layer] = loompy.MemoryLoomLayer(layer, temp)
+
+				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[selection] for key, val in self.row_attrs}, {key: val[ordering][cells] for key, val in self.col_attrs}))
+				ix += rows_per_chunk
+
 	def map(self, f_list: List[Callable[[np.ndarray], int]], axis: int = 0, chunksize: int = 1000, selection: np.ndarray = None) -> List[np.ndarray]:
 		"""
 		Apply a function along an axis without loading the entire dataset in memory.
