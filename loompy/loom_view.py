@@ -14,7 +14,7 @@ class LoomView:
 	"""
 	An in-memory loom dataset
 	"""
-	def __init__(self, layers: Dict[str, MemoryLoomLayer], row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray]) -> None:
+	def __init__(self, layers: Dict[str, loompy.MemoryLoomLayer], row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray]) -> None:
 		self.layers = layers
 		self.shape = next(iter(self.layers.values())).shape
 		self.row_attrs = row_attrs
@@ -86,19 +86,3 @@ class LoomView:
 			html += "</tr>"
 		html += "</table>"
 		return html
-
-
-class MemoryLoomLayer(LoomLayer):
-	def __init__(self, name: str, matrix: np.ndarray) -> None:
-		self.name = name
-		self.shape = matrix.shape
-		self.values = matrix
-
-	def __getitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]]) -> np.ndarray:
-		return self.values[slice]
-
-	def __setitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]], data: np.ndarray) -> None:
-		self.values[slice] = data
-
-	def sparse(self, genes: np.ndarray, cells: np.ndarray) -> scipy.sparse.coo_matrix:
-		return scipy.sparse.coo_matrix(self.values[genes, :][:, cells])

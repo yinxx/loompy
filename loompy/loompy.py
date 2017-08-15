@@ -31,6 +31,7 @@ import scipy.sparse
 from shutil import copyfile
 import logging
 import time
+import loompy
 
 
 def strip(s: str) -> str:
@@ -122,12 +123,12 @@ class LoomConnection:
 
 		if self._file.__contains__("/matrix"):
 			self.layer = {
-				"@DEFAULT": LoomLayer(self, "@DEFAULT", self._file["/matrix"].dtype)
+				"": loompy.LoomLayer(self, "", self._file["/matrix"].dtype)
 			}
 			self.shape = self._file["/matrix"].shape
 			if self._file.__contains__("/layers"):
 				for key in self._file["/layers"].keys():
-					self.layer[key] = LoomLayer(self, key, self._file["/layers/" + key].dtype)
+					self.layer[key] = loompy.LoomLayer(self, key, self._file["/layers/" + key].dtype)
 		else:
 			self.layer = {}
 
@@ -276,7 +277,7 @@ class LoomConnection:
 		Returns:
 			A numpy matrix
 		"""
-		return self.layer["@DEFAULT"][slice]
+		return self.layer[""][slice]
 
 	def __setitem__(self, slice: Tuple[Union[int, slice], Union[int, slice]], data: np.ndarray) -> None:
 		"""
@@ -288,11 +289,11 @@ class LoomConnection:
 		Returns:
 			Nothing.
 		"""
-		self.layer["@DEFAULT"][slice] = data
+		self.layer[""][slice] = data
 
 	def sparse(self, genes: np.ndarray = None, cells: np.ndarray = None, layer: str = None) -> scipy.sparse.coo_matrix:
 		if layer is None:
-			return self.layer["@DEFAULT"].sparse(genes=genes, cells=cells)
+			return self.layer[""].sparse(genes=genes, cells=cells)
 		else:
 			return self.layer[layer].sparse(genes=genes, cells=cells)
 			
@@ -319,7 +320,7 @@ class LoomConnection:
 		# make sure chunk size is not bigger than actual matrix size
 		chunks = (min(chunks[0], matrix.shape[0]), min(chunks[1], matrix.shape[1]))
 		path = "/layers/" + name
-		if name == "@DEFAULT":
+		if name == "":
 			path = "/matrix"
 		if self._file.__contains__(path):
 			del self._file[path]
@@ -345,8 +346,8 @@ class LoomConnection:
 				compression_opts=compression_opts
 			)
 
-		self.layer[name] = LoomLayer(self, name, dtype)
-		if name == "@DEFAULT":
+		self.layer[name] = loompy.LoomLayer(self, name, dtype)
+		if name == "":
 			self.shape = matrix.shape
 		self._file.flush()
 
@@ -357,7 +358,7 @@ class LoomConnection:
 		Args:
 			submatrix (dict or numpy.ndarray):
 				Either:
-				1) A N-by-M matrix of float32s (N rows, M columns) in this case columns are added at the @DEFAULT layer
+				1) A N-by-M matrix of float32s (N rows, M columns) in this case columns are added at the default layer
 				2) A dict {layer_name : matrix} specified so that the matrix (N, M) will be added to layer `layer_name`
 
 			col_attrs (dict):
@@ -378,10 +379,10 @@ class LoomConnection:
 
 		if not type(submatrix) == dict:
 			submatrix_dict = dict()
-			submatrix_dict["@DEFAULT"] = submatrix
+			submatrix_dict[""] = submatrix
 		else:
 			submatrix_dict = cast(dict, submatrix)  # equivalent to submatrix_dict = submatrix # only avoids problems with type checker
-			submatrix = submatrix_dict["@DEFAULT"]
+			submatrix = submatrix_dict[""]
 
 		# for k, v in submatrix_dict.items():
 		# 	if not np.isfinite(v).all():
@@ -493,7 +494,7 @@ class LoomConnection:
 		if len(diff_layers) > 0:
 			raise ValueError("%s is missing a layer, cannot merge with current file. layers missing:%s" % (other_file, diff_layers))
 
-		for (ix, selection, vals) in other.batch_scan_layers(axis=1, layers=self.layer.keys(), batch_size = batch_size):
+		for (ix, selection, vals) in other.batch_scan_layers(axis=1, layers=self.layer.keys(), batch_size=batch_size):
 			ca = {key: v[selection] for key, v in other.col_attrs.items()}
 			if ordering is not None:
 				vals = {key: val[ordering, :] for key, val in vals.items()}
@@ -644,7 +645,7 @@ class LoomConnection:
 		if genes is None:
 			genes = np.fromiter(range(self.shape[0]), dtype='int')
 		if layer is None:
-			layer = "@DEFAULT"
+			layer = ""
 		if axis == 1:
 			cols_per_chunk = batch_size
 			ix = 0
@@ -701,7 +702,7 @@ class LoomConnection:
 			the chuncks returned at every element of the iterator
 		layers: iterable
 			if specified it will batch scan only accross some of the layers of the loom file
-			i.g. if layers = ["@DEFAULT"] batch_scan_layers is equivalent to batch_scan
+			i.g. if layers = [""] batch_scan_layers is equivalent to batch_scan
 
 		Returns
 		------
@@ -838,7 +839,7 @@ class LoomConnection:
 		ordering = list(np.array(ordering).flatten())  # Flatten the ordering, in case we got a column vector
 		if axis == 0:
 			for layer in self.layer:
-				if layer == "@DEFAULT":
+				if layer == "":
 					obj = self._file['/matrix']
 				else:
 					obj = self._file['/layers/' + layer]
@@ -860,7 +861,7 @@ class LoomConnection:
 		if axis == 1:
 			# Permute the columns of each layer
 			for layer in self.layer:
-				if layer == "@DEFAULT":
+				if layer == "":
 					obj = self._file['/matrix']
 				else:
 					obj = self._file['/layers/' + layer]
@@ -916,8 +917,6 @@ class LoomConnection:
 					for v in self.layer[layer][row, :]:
 						f.write(str(v) + "\t")
 				f.write("\n")
-
-
 
 
 def _create_sparse(filename: str, matrix: np.ndarray, row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray], file_attrs: Dict[str, str] = None, chunks: Tuple[int, int] = (64, 64), chunk_cache: int = 512, dtype: str = "float32", compression_opts: int = 2) -> LoomConnection:
@@ -978,7 +977,7 @@ def create(filename: str, matrix: np.ndarray, row_attrs: Dict[str, np.ndarray], 
 	f.close()
 
 	ds = connect(filename)
-	ds.set_layer("@DEFAULT", matrix, chunks, chunk_cache, dtype, compression_opts)
+	ds.set_layer("", matrix, chunks, chunk_cache, dtype, compression_opts)
 
 	for key, vals in row_attrs.items():
 		ds.set_attr(key, vals, axis=0)

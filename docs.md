@@ -523,10 +523,9 @@ The default layer can be accessed directly:
 ds[10, :]
 ```
 
-It can also be accessed by name, or using the empty string:
+It can also be accessed using the empty string:
 
 ```
-ds.layer["@DEFAULT"]
 ds.layer[""]
 ```
 
