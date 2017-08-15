@@ -1215,7 +1215,7 @@ class MemoryLoomLayer():
 
 
 class LoomLayer():
-	def __init__(self, ds: loompy.LoomConnection, name: str, dtype: str) -> None:
+	def __init__(self, ds: LoomConnection, name: str, dtype: str) -> None:
 		self.ds = ds
 		self.name = name
 		self.dtype = dtype
@@ -1269,7 +1269,7 @@ class LoomView:
 	"""
 	An in-memory loom dataset
 	"""
-	def __init__(self, layers: Dict[str, loompy.MemoryLoomLayer], row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray]) -> None:
+	def __init__(self, layers: Dict[str, MemoryLoomLayer], row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray]) -> None:
 		self.layers = layers
 		self.shape = next(iter(self.layers.values())).shape
 		self.row_attrs = row_attrs
