@@ -200,12 +200,10 @@ class LoomConnection:
 
 		if axis == 0:
 			self.row_attrs[name] = vals
-			if not hasattr(LoomConnection, name):
-				setattr(self, name, self.row_attrs[name])
+			setattr(self, name, self.row_attrs[name])
 		else:
 			self.col_attrs[name] = vals
-			if not hasattr(LoomConnection, name):
-				setattr(self, name, self.col_attrs[name])
+			setattr(self, name, self.col_attrs[name])
 
 	def _repr_html_(self) -> str:
 		"""
@@ -445,6 +443,7 @@ class LoomConnection:
 			del self._file['/col_attrs/' + key]
 			self._file['/col_attrs/' + key] = temp
 			self.col_attrs[key] = self._file['/col_attrs/' + key]
+			setattr(self, key, self.col_attrs[key])
 
 		# Add the columns layerwise
 		for key in self.layer.keys():
@@ -541,7 +540,7 @@ class LoomConnection:
 
 		self._file.flush()
 
-	def set_attr(self, name: str, values: np.ndarray, axis: int = 0, dtype: str = None) -> None:
+	def set_attr(self, name: str, values: np.ndarray, axis: int = 0) -> None:
 		"""
 		Create or modify an attribute.
 
@@ -557,8 +556,6 @@ class LoomConnection:
 		"""
 		if self.mode != "r+":
 			raise IOError("Cannot save attributes when connected in read-only mode")
-		if dtype is not None:
-			raise DeprecationWarning("Data type should no longer be provided")
 
 		self.delete_attr(name, axis, raise_on_missing=False)
 		self._save_attr(name, values, axis)
@@ -769,6 +766,7 @@ class LoomConnection:
 				ix += rows_per_chunk
 
 	def scan(self, cells: np.ndarray = None, genes: np.ndarray = None, axis: int = 0, batch_size: int = 1000, layers: Iterable = None, key: Dict[str, List[Any]] = None) -> Iterable[Tuple[int, np.ndarray, Dict]]:
+		raise NotImplementedError("This method has a bug")
 		"""Performs a batch scan of the loom file dealing with multiple layer files
 
 		Args
@@ -816,10 +814,11 @@ class LoomConnection:
 			layers = [""]
 
 		if axis == 1:
-			# This is magic sauce for making the order of one list be like another
 			ordering = np.arange(self.shape[0])
-			for k, v in key.items():
-				ordering = np.where(self.row_attrs[k][None, :] == v[:, None])[1]
+			if key is not None:
+				for k, v in key.items():
+					# This is magic sauce for making the order of one list be like another
+					ordering = np.where(self.row_attrs[k][None, :] == v[:, None])[1]
 			cols_per_chunk = batch_size
 			ix = 0
 			while ix < self.shape[1]:
@@ -836,18 +835,19 @@ class LoomConnection:
 				vals: Dict[str, loompy.MemoryLoomLayer] = {}
 				for layer in layers:
 					temp = self.layer[layer][:, ix:ix + cols_per_chunk]
-					temp = temp[layer][ordering, :]
-					temp = temp[layer][genes, :]
-					temp = temp[layer][:, selection]
+					temp = temp[ordering, :]
+					temp = temp[genes, :]
+					temp = temp[:, selection]
 					vals[layer] = loompy.MemoryLoomLayer(layer, temp)
 
-				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[ordering][genes] for key, val in self.row_attrs}, {key: val[selection] for key, val in self.col_attrs}))
+				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[ordering][genes] for key, val in self.row_attrs.items()}, {key: val[selection] for key, val in self.col_attrs.items()}))
 				ix += cols_per_chunk
 		elif axis == 0:
 			# This is magic sauce for making the order of one list be like another
 			ordering = np.arange(self.shape[1])
-			for k, v in key.items():
-				ordering = np.where(self.col_attrs[k][None, :] == v[:, None])[1]
+			if key is not None:
+				for k, v in key.items():
+					ordering = np.where(self.col_attrs[k][None, :] == v[:, None])[1]
 			rows_per_chunk = batch_size
 			ix = 0
 			while ix < self.shape[0]:
@@ -864,12 +864,12 @@ class LoomConnection:
 				vals = {}
 				for layer in layers:
 					temp = self.layer[layer][ix:ix + rows_per_chunk, :]
-					temp = temp[layer][selection, :]
-					temp = temp[layer][:, ordering]
-					temp = temp[layer][:, cells]
+					temp = temp[selection, :]
+					temp = temp[:, ordering]
+					temp = temp[:, cells]
 					vals[layer] = loompy.MemoryLoomLayer(layer, temp)
 
-				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[selection] for key, val in self.row_attrs}, {key: val[ordering][cells] for key, val in self.col_attrs}))
+				yield (ix, ix + selection, loompy.LoomView(vals, {key: val[selection] for key, val in self.row_attrs.items()}, {key: val[ordering][cells] for key, val in self.col_attrs.items()}))
 				ix += rows_per_chunk
 
 	def map(self, f_list: List[Callable[[np.ndarray], int]], axis: int = 0, chunksize: int = 1000, selection: np.ndarray = None) -> List[np.ndarray]:
@@ -1026,14 +1026,16 @@ class LoomConnection:
 def _create_sparse(filename: str, matrix: np.ndarray, row_attrs: Dict[str, np.ndarray], col_attrs: Dict[str, np.ndarray], file_attrs: Dict[str, str] = None, chunks: Tuple[int, int] = (64, 64), chunk_cache: int = 512, dtype: str = "float32", compression_opts: int = 2) -> LoomConnection:
 	logging.info("Converting to csc format")
 	matrix = matrix.tocsc()
+	n_cols = matrix.shape[1]
 	window = 2000
 	ix = 0
 	ds = None  # type: LoomConnection
 	while ix < matrix.shape[1]:
-		ca = {key: val[ix:ix + window] for (key, val) in col_attrs.items()}
+		end = min(ix + window, n_cols)
+		ca = {key: val[ix:end] for (key, val) in col_attrs.items()}
 		if ds is None:
 			logging.info("Creating")
-			ds = create(filename, matrix[:, ix:ix + window].toarray(), row_attrs, ca, file_attrs, chunks, chunk_cache, dtype, compression_opts)
+			ds = create(filename, matrix[:, ix:end].toarray(), row_attrs, ca, file_attrs, chunks, chunk_cache, dtype, compression_opts)
 		else:
 			logging.info("Adding columns")
 			ds.add_columns(matrix[:, ix:ix + window].toarray(), ca)
@@ -1047,7 +1049,7 @@ def create(filename: str, matrix: np.ndarray, row_attrs: Dict[str, np.ndarray], 
 
 	Args:
 		filename (str):         The filename (typically using a `.loom` file extension)
-		matrix (numpy.ndarray): Two-dimensional (N-by-M) numpy ndarray of float values
+		matrix (numpy.ndarray): Two-dimensional (N-by-M) numpy ndarray of float values, or sparse matrix
 		row_attrs (dict):       Row attributes, where keys are attribute names and values
 								are numpy arrays (float or string) of length N
 		col_attrs (dict):       Column attributes, where keys are attribute names and
