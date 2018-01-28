@@ -569,11 +569,11 @@ class LoomConnection:
 			# 	vals = np.array([x.encode('ascii', 'ignore') for x in vals])
 			temp = self._file['/col_attrs/' + key][:]
 			temp = loompy.normalize_attr_values(temp)
-			# casting_rule_dtype = np.result_type(temp, vals)
+			casting_rule_dtype = np.result_type(temp, vals)
 			# if vals.dtype != casting_rule_dtype:
-			# 	vals = vals.astype(casting_rule_dtype)
+			vals = vals.astype(casting_rule_dtype)
 			# if temp.dtype != casting_rule_dtype:
-			# 	temp = temp.astype(casting_rule_dtype)
+			temp = temp.astype(casting_rule_dtype)
 			temp.resize((n_cols,))
 			temp[self.shape[1]:] = vals
 			del self._file['/col_attrs/' + key]
