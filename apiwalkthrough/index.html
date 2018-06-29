@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API Walkthrough &mdash; loompy 2.0.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Cookbook" href="../cookbook/index.html" />
+    <link rel="prev" title="Understanding the semantics of loom files" href="../semantics/index.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loompy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Welcome to loompy!</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html#getting-started">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../semantics/index.html">Understanding the semantics of loom files</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Walkthrough</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#creating-and-connecting">Creating and connecting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-loom-files">Creating <code class="docutils literal notranslate"><span class="pre">.loom</span></code> files</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#connecting-to-loom-files">Connecting to <code class="docutils literal notranslate"><span class="pre">.loom</span></code> files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#manipulate-data">Manipulate data</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#shape-indexing-and-slicing">Shape, indexing and slicing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#sparse-data">Sparse data</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#global-attributes">Global attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#row-and-column-attributes">Row and column attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#adding-columns">Adding columns</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#layers">Layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#graphs">Graphs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#views">Views</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#operations">Operations</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#map">Map</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#permutation">Permutation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#scan">Scan</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../cookbook/index.html">Cookbook</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../conventions/index.html">Conventions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../fullapi/index.html">Complete API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../format/index.html">Loom file format specs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loompy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>API Walkthrough</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/linnarsson-lab/loompy/blob/master/doc/apiwalkthrough/index.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-walkthrough">
+<span id="apiwalkthrough"></span><h1>API Walkthrough<a class="headerlink" href="#api-walkthrough" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="creating-and-connecting">
+<span id="loomcreate"></span><h2>Creating and connecting<a class="headerlink" href="#creating-and-connecting" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="creating-loom-files">
+<h3>Creating <code class="docutils literal notranslate"><span class="pre">.loom</span></code> files<a class="headerlink" href="#creating-loom-files" title="Permalink to this headline">¶</a></h3>
+<p>To create a loom file from data, you need to supply a main matrix (numpy ndarray or scipy sparse matrix) and two dictionaries of row and column attributes (with attribute names as keys, and numpy ndarrays as values). If the main matrix is N×M, then the row attributes must have N elements, and the column attributes must have M elements.</p>
+<p>For example, the following creates a loom file with a 100x100 main matrix, one row attribute and one column attribute:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">loompy</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;test.loom&quot;</span>
+<span class="n">matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">10000</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">100</span><span class="p">,</span><span class="mi">100</span><span class="p">)</span>
+<span class="n">row_attrs</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;SomeRowAttr&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">col_attrs</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;SomeColAttr&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">loompy</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">row_attrs</span><span class="p">,</span> <span class="n">col_attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="docutils">
+<dt><code class="docutils literal notranslate"><span class="pre">loompy.create</span></code> accepts numpy dense matrices (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>) as well as scipy sparse matrices (<code class="docutils literal notranslate"><span class="pre">scipy.coo_matrix</span></code>, <code class="docutils literal notranslate"><span class="pre">scipy.csc_matrix</span></code>,</dt>
+<dd>or <code class="docutils literal notranslate"><span class="pre">scipy.csr_matrix</span></code>). For example:</dd>
+</dl>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">loompy</span>
+<span class="kn">import</span> <span class="nn">scipy.sparse</span> <span class="k">as</span> <span class="nn">sparse</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;test.loom&quot;</span>
+<span class="n">matrix</span> <span class="o">=</span> <span class="n">sparse</span><span class="o">.</span><span class="n">coo_matrix</span><span class="p">((</span><span class="mi">100</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+<span class="n">row_attrs</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;SomeRowAttr&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">col_attrs</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;SomeColAttr&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">100</span><span class="p">)</span> <span class="p">}</span>
+<span class="n">loompy</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">matrix</span><span class="p">,</span> <span class="n">row_attrs</span><span class="p">,</span> <span class="n">col_attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can also create a file by combining existing loom files. The files will be concatenated along the column
+axis, and therefore must have the same number of rows. If the rows are potentially not in the same order,
+you can supply a <code class="docutils literal notranslate"><span class="pre">key</span></code> argument; the row attribute corresponding to the key will be used to sort the files.
+For example, the following code will combine files and use the “Accession” row attribute as the key:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loompy</span><span class="o">.</span><span class="n">combine</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;Accession&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You can import a 10X Genomics
+<a class="reference external" href="http://support.10xgenomics.com/single-cell/software/pipelines/latest/what-is-cell-ranger">cellranger</a>
+output folder:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loompy</span><span class="o">.</span><span class="n">create_from_cellranger</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">output_filename</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="connecting-to-loom-files">
+<h3>Connecting to <code class="docutils literal notranslate"><span class="pre">.loom</span></code> files<a class="headerlink" href="#connecting-to-loom-files" title="Permalink to this headline">¶</a></h3>
+<p>In order to work with a loom file, you must first connect to it. This does not load the data
+or attributes, so is very quick regardless of the size of the file. It’s more like connecting to a
+database than reading a file. Loom supports
+Python context management, so normally you should use a <code class="docutils literal notranslate"><span class="pre">with</span></code> statement to take care of the connection:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="n">loompy</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;filename.loom&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+  <span class="c1"># do something with ds</span>
+</pre></div>
+</div>
+<p>The connection will be automatically closed at the end of the <code class="docutils literal notranslate"><span class="pre">with</span></code> block.</p>
+<p>Sometimes, especially in interactive use in a Jupyter notebook, you may want
+to just open the file and keep the connection around:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span> <span class="o">=</span> <span class="n">loompy</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="s2">&quot;filename.loom&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>In that case, you should close the file when you are done:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>In most cases, forgetting to close the file will do no harm, but may (for example)
+prevent concurrent processes from accessing the file, and will leak file handles.</p>
+<p>In the rest of the documentation below, <code class="docutils literal notranslate"><span class="pre">ds</span></code> is assumed to be an
+instance of <code class="docutils literal notranslate"><span class="pre">LoomConnection</span></code> obtained by connecting to a <code class="docutils literal notranslate"><span class="pre">.loom</span></code>
+file.</p>
+</div>
+</div>
+<div class="section" id="manipulate-data">
+<span id="loommanipulate"></span><h2>Manipulate data<a class="headerlink" href="#manipulate-data" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="shape-indexing-and-slicing">
+<h3>Shape, indexing and slicing<a class="headerlink" href="#shape-indexing-and-slicing" title="Permalink to this headline">¶</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">shape</span></code> property returns the row and column count as a tuple:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span>
+<span class="go">(100, 2345)</span>
+</pre></div>
+</div>
+<p>The data stored in the main matrix can be retrieved by indexing and
+slicing. The following are supported:</p>
+<ul class="simple">
+<li>Indices: anything that can be converted to a Python long</li>
+<li>Slices (i.e. <code class="docutils literal notranslate"><span class="pre">:</span></code> or <code class="docutils literal notranslate"><span class="pre">0:10</span></code>)</li>
+<li>Lists of the rows/columns you want (i.e. <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">34,</span> <span class="pre">576]</span></code>)</li>
+<li>Mask arrays (i.e. numpy array of bool indicating the rows/columns you
+want)</li>
+</ul>
+<p>Lists and mask arrays are supported along one dimension at a time only. Since
+the main matrix is two-dimensional, two arguments are always needed. Examples:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="p">[:,</span> <span class="p">:]</span>          <span class="c1"># Return the entire matrix</span>
+<span class="n">ds</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span> <span class="mi">0</span><span class="p">:</span><span class="mi">10</span><span class="p">]</span>    <span class="c1"># Return the 10x10 submatrix starting at row and column zero</span>
+<span class="n">ds</span><span class="p">[</span><span class="mi">99</span><span class="p">,</span> <span class="p">:]</span>         <span class="c1"># Return the 100th row</span>
+<span class="n">ds</span><span class="p">[:,</span> <span class="mi">99</span><span class="p">]</span>         <span class="c1"># Return the 100th column</span>
+<span class="n">ds</span><span class="p">[[</span><span class="mi">0</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">5</span><span class="p">],</span> <span class="p">:]</span>    <span class="c1"># Return rows with index 0, 3 and 5</span>
+<span class="n">ds</span><span class="p">[:,</span> <span class="n">bool_array</span><span class="p">]</span> <span class="c1"># Return columns where bool_array elements are True</span>
+</pre></div>
+</div>
+<p>Note that performance will be poor if you select many individual rows (columns) out
+of a large matrix. For example, in a dataset with shape (27998, 160796), loading ten
+randomly chosen individual full columns took 914 ms,
+whereas loading 1000 columns took 1 minute and 6 seconds, and loadingh 5000 columns took 13 minutes.
+This slowdown is caused by a <a class="reference external" href="https://github.com/h5py/h5py/issues/293">performance bug</a>
+in h5py.</p>
+<p>If the whole dataset fits in RAM, loading it in full and then selecting the row/columns you want
+will be faster. If it doesn’t, consider using the <code class="docutils literal notranslate"><span class="pre">scan()</span></code> method (see below), which in this example took
+1 minute and 12 seconds regardless of how many columns were selected. As a rule of thumb,
+<code class="docutils literal notranslate"><span class="pre">scan()</span></code> will be faster whenever you are loading more than about 1% of the rows
+or columns (randomly selected).</p>
+</div>
+<div class="section" id="sparse-data">
+<h3>Sparse data<a class="headerlink" href="#sparse-data" title="Permalink to this headline">¶</a></h3>
+<p>On disk, every layer is stored chunked and block-compressed, for efficient storage and access along both axes.</p>
+<p>The main matrix and additional layers can be assigned from dense or sparse matrices (any scipy.sparse format).</p>
+<p>You can load the main matrix or any layer as sparse:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;exons&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sparse</span><span class="p">()</span>  <span class="c1"># Returns a scipy.sparse.coo_matrix()</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;unspliced&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sparse</span><span class="p">(</span><span class="n">rows</span><span class="p">,</span> <span class="n">cols</span><span class="p">)</span>  <span class="c1"># Returns only the indicated rows and columns (ndarrays of integers)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="global-attributes">
+<h3>Global attributes<a class="headerlink" href="#global-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Global attributes are available at <code class="docutils literal notranslate"><span class="pre">ds.attrs</span></code> and can be accessed by name or
+as a dictionary. You create new attributes by assignment, and delete them
+using the <code class="docutils literal notranslate"><span class="pre">del</span></code> statement:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">title</span>
+<span class="go">&quot;The title of the dataset&quot;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;New title&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="p">[</span><span class="s2">&quot;title&quot;</span><span class="p">]</span>
+<span class="go">&quot;New title&quot;</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">title</span>
+</pre></div>
+</div>
+<p>You can list the attributes and loop over them as you would with a dictionary:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+<span class="go">[&quot;title&quot;, &quot;description&quot;]</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">attrs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+<span class="gp">&gt;&gt;&gt; </span>  <span class="nb">print</span><span class="p">(</span><span class="n">f</span><span class="s2">&quot;</span><span class="si">{key}</span><span class="s2"> = </span><span class="si">{value}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="go">title = New title</span>
+<span class="go">description = Fancy dataset</span>
+</pre></div>
+</div>
+<p>Global attributes can be scalars, or multidimensional arrays of any shape, and
+the elements can be integers, floats or strings. See below for the exact types allowed.</p>
+</div>
+<div class="section" id="row-and-column-attributes">
+<h3>Row and column attributes<a class="headerlink" href="#row-and-column-attributes" title="Permalink to this headline">¶</a></h3>
+<p>Row and column attributes are accessed at <code class="docutils literal notranslate"><span class="pre">ds.ra</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ds.ca</span></code>, respectively, and support the same interface as global
+attributes. For example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>       <span class="c1"># Return list of row attribute names</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>       <span class="c1"># Return list of column attribute names</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span> <span class="o">=</span> <span class="o">...</span>   <span class="c1"># Create or replace the Gene attribute</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span>     <span class="c1"># Assign the array of gene names (assuming the attribute exists)</span>
+<span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span>     <span class="c1"># Delete the Gene row attribute</span>
+</pre></div>
+</div>
+<p>Attributes can be any of the following:</p>
+<ul class="simple">
+<li>One-dimensional arrays of integers, floats or strings. The number of elements in the array must match the corresponding matrix dimension.</li>
+<li>Multidimensional arrays of any of the same element types. The length along the first dimension of a row attribute must equal the number of rows in the main matrix (and vice versa for column attributes). Remaining dimensions can be any size.</li>
+</ul>
+<p>For example, if the main matrix has M columns, the result of a dimensionality reduction
+(for example, a PCA) to 20 dimensions could be stored as a column attribute with shape (M, 20).</p>
+<p>You can assign attributes using almost any array or list-like type, but attributes will
+always return numpy array (<code class="docutils literal notranslate"><span class="pre">np.ndarray</span></code>).</p>
+<p>Using attributes as masks for indexing the main matrix results in a very compact and readable
+syntax for selecting subarrays:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[</span><span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span> <span class="o">==</span> <span class="s2">&quot;Actb&quot;</span><span class="p">,</span> <span class="p">:]</span>
+<span class="go">array([[  2.,   9.,   9., ...,   0.,  14.,   0.]], dtype=float32)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[(</span><span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span> <span class="o">==</span> <span class="s2">&quot;Actb&quot;</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">ra</span><span class="o">.</span><span class="n">Gene</span> <span class="o">==</span> <span class="s2">&quot;Gapdh&quot;</span><span class="p">),</span> <span class="p">:]</span>
+<span class="go">array([[  2.,   9.,   9., ...,   0.,  14.,   0.],</span>
+<span class="go">       [  0.,   1.,   4., ...,   0.,  14.,   3.]], dtype=float32)</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ds</span><span class="p">[:,</span> <span class="n">ds</span><span class="o">.</span><span class="n">ca</span><span class="o">.</span><span class="n">CellID</span> <span class="o">==</span> <span class="s2">&quot;AAACATACATTCTC-1&quot;</span><span class="p">]</span>
+<span class="go">array([[ 0.],</span>
+<span class="go">       [ 0.],</span>
+<span class="go">       [ 0.],</span>
+<span class="go">       ...,</span>
+<span class="go">       [ 0.],</span>
+<span class="go">       [ 0.],</span>
+<span class="go">       [ 0.]], dtype=float32)</span>
+</pre></div>
+</div>
+<p>Note that numpy logical functions overload the bitwise, not the boolean operators. Use <code class="docutils literal notranslate"><span class="pre">|</span></code>
+for ‘or’, <code class="docutils literal notranslate"><span class="pre">&amp;</span></code> for ‘and’ and <code class="docutils literal notranslate"><span class="pre">~</span></code> for ‘not’. You also must place parentheses around the comparison
+expressions to ensure proper operator precedence. For example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="n">b</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">a</span> <span class="o">&gt;</span> <span class="n">c</span><span class="p">)</span> <span class="o">|</span> <span class="o">~</span><span class="p">(</span><span class="n">c</span> <span class="o">&lt;=</span> <span class="n">b</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="adding-columns">
+<h3>Adding columns<a class="headerlink" href="#adding-columns" title="Permalink to this headline">¶</a></h3>
+<p>You can add columns to an existing loom file. It’s not possible to add rows or to
+delete any part of the matrix.</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">add_columns</span><span class="p">(</span><span class="n">submatrix</span><span class="p">,</span> <span class="n">col_attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You need to provide a submatrix corresponding to the new columns, as well as
+a dictionary of column attributes with values for all the new columns.</p>
+<p>You can also add the contents of another .loom file:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">add_loom</span><span class="p">(</span><span class="n">other_file</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="s2">&quot;Gene&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The content of the other file is added as columns on the right of the
+current dataset. The rows must match for this to work. That is, the two
+files must have exactly the same number of rows. If <code class="docutils literal notranslate"><span class="pre">key</span></code> is given, the
+rows will be ordered based on the key attribute. Furthermore, the two
+datasets must have the same column
+attributes (but of course can have different <em>values</em> for those
+attributes at each column). Missing attributes can be given default
+values using the <code class="docutils literal notranslate"><span class="pre">fill_values</span></code> argument. If the files contain any global attribute
+with conflicting values, you can automatically convert such attributes into column attributes
+by passing <code class="docutils literal notranslate"><span class="pre">convert_attrs=True</span></code> to the method.</p>
+<p>There is also a convenient function to create or append to a loom file:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">loompy</span><span class="o">.</span><span class="n">create_append</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">layers</span><span class="p">,</span> <span class="n">row_attrs</span><span class="p">,</span> <span class="n">col_attrs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This will create the file if it doesn’t exist, and append to it if it does. This function
+is commonly used when combining several loom files while performing a selection on the columns:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">input_files</span><span class="p">:</span>
+  <span class="k">with</span> <span class="n">loompy</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+    <span class="n">cells</span> <span class="o">=</span> <span class="c1"># select the desired columns in ds</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="n">cells</span><span class="p">):</span>
+      <span class="n">loompy</span><span class="o">.</span><span class="n">create_append</span><span class="p">(</span><span class="n">outout_file</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">layers</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">view</span><span class="o">.</span><span class="n">ca</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The code above loops over a number of input files, then scans across each file to select
+a desired subset of the columns (cells) and writes them to the output file. Since it uses
+<code class="docutils literal notranslate"><span class="pre">scan()</span></code>, it will never load entire datasets in RAM and will work no matter how big the
+input datasets are.</p>
+</div>
+<div class="section" id="layers">
+<span id="loomlayers"></span><h3>Layers<a class="headerlink" href="#layers" title="Permalink to this headline">¶</a></h3>
+<p>Loom supports multiple layers. There is always a single main matrix, but
+optionally one or more additional layers having the same number of rows
+and columns. Layers are accessed using the <code class="docutils literal notranslate"><span class="pre">layers</span></code> property on the
+<code class="docutils literal notranslate"><span class="pre">LoomConnection</span></code> object.</p>
+<p>Layers support the same pythonic API as attributes:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>            <span class="c1"># Return list of layers</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;unspliced&quot;</span><span class="p">]</span>      <span class="c1"># Return the layer named &quot;unspliced&quot;</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Create or replace the &quot;spliced&quot; layer</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">][:,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1"># Assign the 10th column of layer &quot;spliced&quot; to the variable a</span>
+<span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">layers</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span>     <span class="c1"># Delete the &quot;spliced&quot; layer</span>
+</pre></div>
+</div>
+<p>The main matrix is availabe as a layer named “” (the empty string). It cannot be deleted but
+otherwise supports the same operations as any other layer.</p>
+<p>As a convenience, layers are also available directly on the connection object. The above
+expressions are equivalent to the following:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="p">[</span><span class="s2">&quot;unspliced&quot;</span><span class="p">]</span>      <span class="c1"># Return the layer named &quot;unspliced&quot;</span>
+<span class="n">ds</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># Create or replace the &quot;spliced&quot; layer</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">][:,</span> <span class="mi">10</span><span class="p">]</span> <span class="c1"># Assign the 10th column of layer &quot;spliced&quot; to the variable a</span>
+<span class="k">del</span> <span class="n">ds</span><span class="p">[</span><span class="s2">&quot;spliced&quot;</span><span class="p">]</span>     <span class="c1"># Delete the &quot;spliced&quot; layer</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="graphs">
+<span id="loomoperations"></span><h3>Graphs<a class="headerlink" href="#graphs" title="Permalink to this headline">¶</a></h3>
+<p>Loom supports sparse graphs with either the rows or the columns as nodes. For example,
+a sparse graph of cells (stored in the columns) could represent a K nearest-neighbors
+graph of the cells. In that case, the cells are the nodes (so there are M nodes in the
+graph if there are M columns in the main matrix), which are connected by an arbitrary
+number of edges. The graph could be considered directed or undirected, and can have float-valued
+weights on the edges. Loom even supports multigraphs (permitting multiple edges between pairs of nodes).
+Graphs are stored as arrays of edges and the associated edge weights.</p>
+<p>Row and column graphs are accessed at <code class="docutils literal notranslate"><span class="pre">ds.row_graphs</span></code> and <code class="docutils literal notranslate"><span class="pre">ds.col_graphs</span></code>, respectively,
+and support the same interface as attributes. For example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">row_graphs</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>      <span class="c1"># Return list of row graphs</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">col_graphs</span><span class="o">.</span><span class="n">KNN</span> <span class="o">=</span> <span class="o">...</span>   <span class="c1"># Create or replace the column-oriented graph KNN</span>
+<span class="n">a</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">col_graphs</span><span class="o">.</span><span class="n">KNN</span>     <span class="c1"># Assign the KNN column graph to variable a</span>
+<span class="k">del</span> <span class="n">ds</span><span class="o">.</span><span class="n">col_graphs</span><span class="o">.</span><span class="n">KNN</span>     <span class="c1"># Delete the KNN graph</span>
+</pre></div>
+</div>
+<p>Graphs are returned as <code class="docutils literal notranslate"><span class="pre">scipy.sparse.coo_matrix</span></code>, and can be created/assigned from any
+scipy sparse format as well as from a numpy dense matrix or ndarray. In each case, the matrix
+represents the adjacency matrix of the graph.</p>
+</div>
+<div class="section" id="views">
+<h3>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h3>
+<p>Loompy views are in-memory views of a slice through the underlying loom file. Views can be created
+explicitly by slicing:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">view</span><span class="p">[:,</span> <span class="mi">10</span><span class="p">:</span><span class="mi">20</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>This will create a view, fully loaded in memory, containing all the rows of the underlying loom file,
+but only columns 10 through 19 (zero-based). You can use fancy indexing including slices, arrays of integers
+(to pick out specific rows/columns) and boolean arrays.</p>
+<p>The power of the view is that it slices through <em>everything</em>: the main matrix, every layer, every attribute,
+and every graph. This hides a lot of messy and error-prone code,
+and makes it easy to extract relevant subsets of a loom file.</p>
+<p>The most common use of a <code class="docutils literal notranslate"><span class="pre">view</span></code> is in scanning through a file (see <code class="docutils literal notranslate"><span class="pre">scan()</span></code> below).</p>
+</div>
+<div class="section" id="operations">
+<h3>Operations<a class="headerlink" href="#operations" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="map">
+<h4>Map<a class="headerlink" href="#map" title="Permalink to this headline">¶</a></h4>
+<p>You can map one or more functions across all rows (all columns), while avoiding
+loading the entire dataset into memory:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ds</span><span class="o">.</span><span class="n">map</span><span class="p">([</span><span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">std</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The functions will receive an array (of floats or integers) as their only argument, and
+should return a single float or integer value. Internally, <code class="docutils literal notranslate"><span class="pre">map()</span></code> uses <code class="docutils literal notranslate"><span class="pre">scan()</span></code> to
+loop across the file.</p>
+<p>Note that you must always provide a list of functions, even if it has only one element, and
+that the result is a list of vectors, one per function that was supplied.</p>
+</div>
+<div class="section" id="permutation">
+<h4>Permutation<a class="headerlink" href="#permutation" title="Permalink to this headline">¶</a></h4>
+<p>Permute the order of the rows or columns:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">ordering</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">permutation</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+<span class="n">ds</span><span class="o">.</span><span class="n">permute</span><span class="p">(</span><span class="n">ordering</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This permutes the order of rows or columns in the file, without loading
+the entire file in RAM. The <code class="docutils literal notranslate"><span class="pre">ordering</span></code> argument should be a numpy array
+of ds.shape[axis] elements, in the desired order.</p>
+</div>
+<div class="section" id="scan">
+<h4>Scan<a class="headerlink" href="#scan" title="Permalink to this headline">¶</a></h4>
+<p>For very large loom files, it’s very useful to scan across the file
+(along either rows or columns) in <em>batches</em>, to avoid loading the entire
+file in memory. This can be achieved using the <code class="docutils literal notranslate"><span class="pre">scan()</span></code> method:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="c1"># do something with each view</span>
+</pre></div>
+</div>
+<p>Inside the loop, you get access to the current <code class="docutils literal notranslate"><span class="pre">view</span></code> into the file. It has all the
+attributes, graphs and data of the original loom file, but only for the columns included
+in <code class="docutils literal notranslate"><span class="pre">selection</span></code> (or rows, if axis=0).</p>
+<p>In essence, you get a succession of slices through the loom file, corresponding to
+bands of columns (rows). The <code class="docutils literal notranslate"><span class="pre">ix</span></code> variable tells you the starting column of the band, whereas
+the <code class="docutils literal notranslate"><span class="pre">selection</span></code> gives you the list of columns contained in the current view.</p>
+<p>You can also scan across a selected subset of the columns or rows. For example:</p>
+<div class="code python highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cells</span> <span class="o">=</span> <span class="c1"># List of columns you want to see</span>
+<span class="k">for</span> <span class="p">(</span><span class="n">ix</span><span class="p">,</span> <span class="n">selection</span><span class="p">,</span> <span class="n">view</span><span class="p">)</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">scan</span><span class="p">(</span><span class="n">items</span><span class="o">=</span><span class="n">cells</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+  <span class="c1"># do something with each view</span>
+</pre></div>
+</div>
+<p>This works exactly the same, except that each <code class="docutils literal notranslate"><span class="pre">selection</span></code> and <code class="docutils literal notranslate"><span class="pre">view</span></code> now include only
+the columns you asked for.</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../cookbook/index.html" class="btn btn-neutral float-right" title="Cookbook" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../semantics/index.html" class="btn btn-neutral" title="Understanding the semantics of loom files" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, LinnarssonLab.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.10',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

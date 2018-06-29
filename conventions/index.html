@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Conventions &mdash; loompy 2.0.10 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Complete API Reference" href="../fullapi/index.html" />
+    <link rel="prev" title="Cookbook" href="../cookbook/index.html" /> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> loompy
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                2.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Welcome to loompy!</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation/index.html#getting-started">Getting Started</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../semantics/index.html">Understanding the semantics of loom files</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../apiwalkthrough/index.html">API Walkthrough</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cookbook/index.html">Cookbook</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#single-analysis-per-file">Single analysis per file</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#orientation">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#attribute-naming-conventions">Attribute naming conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#column-attributes">Column attributes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#row-attributes">Row attributes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../fullapi/index.html">Complete API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../format/index.html">Loom file format specs</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">loompy</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Conventions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            
+              <a href="https://github.com/linnarsson-lab/loompy/blob/master/doc/conventions/index.rst" class="fa fa-github"> Edit on GitHub</a>
+            
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="conventions">
+<span id="id1"></span><h1>Conventions<a class="headerlink" href="#conventions" title="Permalink to this headline">¶</a></h1>
+<p>In order to maximize interoperability of Loom files between analysis pipelines,
+we suggest adhering to the following conventions.</p>
+<p><strong>Note:</strong> This document is work in progress and subject to change! You can follow
+the <a class="reference external" href="https://github.com/linnarsson-lab/loompy/issues/19">discussion here</a>.</p>
+<div class="section" id="single-analysis-per-file">
+<h2>Single analysis per file<a class="headerlink" href="#single-analysis-per-file" title="Permalink to this headline">¶</a></h2>
+<p>Each Loom file stores a single analysis. If you want to try two different ways of clustering,
+you store the results separately.</p>
+<p>This convention simplifies things a lot, because we only need to keep track of one set of cluster
+labels (for example). It also means that we don’t need to store the relationship between different
+attributes (e.g. that <em>this clustering</em> was done using <em>that PCA</em>). Such relationships must be
+stored external to the file.</p>
+</div>
+<div class="section" id="orientation">
+<h2>Orientation<a class="headerlink" href="#orientation" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Columns represent cells or aggregates of cells</li>
+<li>Rows represent genes</li>
+</ul>
+<p>Loom files can grow along the column axis, but not the row axis, so this makes sense.</p>
+</div>
+<div class="section" id="attribute-naming-conventions">
+<h2>Attribute naming conventions<a class="headerlink" href="#attribute-naming-conventions" title="Permalink to this headline">¶</a></h2>
+<p>We propose that algorithms always accept an argument specifying the name of each attribute it will use, with
+the defaults set as listed below. For example, an algorithm that needs a unique gene accession string would
+take an argument <code class="docutils literal notranslate"><span class="pre">accession_attr=&quot;Accession&quot;</span></code>, and a clustering algorithm that generates cluster labels would
+take an argument <code class="docutils literal notranslate"><span class="pre">cluster_id_attr=&quot;ClusterID&quot;</span></code>. In this way, Loom files that conform to the conventions below
+would work without fuss, but files that don’t could still be made to work by supplying the non-standard attribute names.</p>
+<div class="section" id="column-attributes">
+<h3>Column attributes<a class="headerlink" href="#column-attributes" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">CellID</span></code> a string label unique to each cell (preferrably globally unique across all datasets)</p>
+<p><code class="docutils literal notranslate"><span class="pre">Valid</span></code> integers 1 or 0, indicating cells that are considered valid after some QC step</p>
+<p><code class="docutils literal notranslate"><span class="pre">ClusterID</span></code> an integer label with values in [0, n_clusters].</p>
+<p><code class="docutils literal notranslate"><span class="pre">ClusterName</span></code> a string label with arbitrary values representing cluster names. If both <code class="docutils literal notranslate"><span class="pre">ClusterID</span></code> and
+<code class="docutils literal notranslate"><span class="pre">ClusterName</span></code> are present, they should correspond 1:1.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Outliers</span></code> an integer label 1 or 0, indicating cells that are outliers relative to the clusters.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Embedding</span></code> an M-by-Y matrix where M is the number of columns and Y is the dimensionality of the embedding. This can be used
+to store e.g. a PCA or t-SNE dimensionality reduction.</p>
+</div>
+<div class="section" id="row-attributes">
+<h3>Row attributes<a class="headerlink" href="#row-attributes" title="Permalink to this headline">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">Gene</span></code> a string human-readable gene name, not necessarily unique</p>
+<p><code class="docutils literal notranslate"><span class="pre">Accession</span></code> a string, unique within the file (e.g. an ENSEMBL accession etc.)</p>
+<p><code class="docutils literal notranslate"><span class="pre">Selected</span></code> integers 1 or 0, indicating genes that were selected by some previous step.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Valid</span></code> integers 1 or 0, indicating genes that are considered valid after some QC step</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../fullapi/index.html" class="btn btn-neutral float-right" title="Complete API Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../cookbook/index.html" class="btn btn-neutral" title="Cookbook" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2017, LinnarssonLab.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'2.0.10',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
